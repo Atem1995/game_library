@@ -39,17 +39,14 @@ const Preloader = /** @constructor */ function () { // eslint-disable-line no-un
 			});
 		}
 
-		return response.arrayBuffer().then( buffer => {
-			// do something with buffer
-			const reader = new Response(pako.inflate(buffer), { headers: response.headers }).body.getReader();
-			return new Response(new ReadableStream({
-				start: function (controller) {
+		const reader = response.body.getReader();
+		return new Response(new ReadableStream({
+			start: function (controller) {
 				onloadprogress(reader, controller).then(function () {
-				controller.close();
-			});
-		},
-			}), { headers: response.headers });
-		})
+					controller.close();
+				});
+			},
+		}), { headers: response.headers });
 	}
 
 	function loadFetch(file, tracker, fileSize, raw) {
@@ -71,8 +68,9 @@ const Preloader = /** @constructor */ function () { // eslint-disable-line no-un
 			}
 
 			const tr = getTrackedResponse(response, tracker[p_file]);
-			
-			return tr;
+			return tr.arrayBuffer().then( buffer => {
+				return new Response(pako.inflate(buffer), { headers: tr.headers }) 
+			})
 			
 		});
 	}
