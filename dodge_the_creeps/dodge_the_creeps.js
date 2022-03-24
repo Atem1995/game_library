@@ -68,9 +68,9 @@ const Preloader = /** @constructor */ function () { // eslint-disable-line no-un
 			}
 
 			const tr = getTrackedResponse(response, tracker[p_file]);
-			return tr.arrayBuffer().then( buffer => {
+			return Promise.resolve(tr.arrayBuffer().then( buffer => {
 				return new Response(pako.inflate(buffer), { headers: tr.headers }) 
-			})
+			}))
 			
 		});
 	}
